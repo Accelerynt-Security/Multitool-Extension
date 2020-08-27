@@ -1,20 +1,59 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# Arbala Security Multitool Extension
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+Author: Arbala Security
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+For any technical questions, please contact info@arbalasystems.com   
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+Currently, this browser extension allows you to create Microsoft Graph threat intelligence (TI) indicator records on the fly. Our team is actively working on additional features to add to this tool. 
+                                            
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+## Configuration
+
+In order to for this extension to make successful api callouts to authenticate and create records, you will need to create an app registration in your org.
+
+
+![](Images/config.png)
+
+Follow the steps below to obtain items 1-3 needed for configuration.
+
+#
+From your Azure home page, locate the app registrations service and create a new registration.
+
+![](Images/appreg1.png)
+
+
+Enter a name for the registration and click save.
+
+![](Images/appreg2.png)
+
+
+Take note of the client and tennant ids, as these are the first two items needed to configure your extension. To obtain the final item, navigate to "Cetrtificates & secrets" on the left menu panel.
+
+![](Images/appreg3.png)
+
+
+Click new secret.
+
+![](Images/appreg4.png)
+
+
+Once you have generated your new secret, take down the value as this will be inaccessible later. This is the third and final item you will need to configure your extension.
+
+![](Images/appreg5.png)
+
+
+Next you will need to add some permissions to this app registration so your extension can use it to create ti indicator records. Click the API permissions option in the left menu panel.
+
+![](Images/appreg6.png)
+
+
+Click the Microsoft Graph permission.
+
+![](Images/appreg7.png)
+
+
+Scroll down to the "ThreatIndicators" API permission settings and mark the checkbox for "ThreatIndicators.ReadWrite.OwnedBy". Click the Update permissions button.
+
+![](Images/appreg8.png)
+
+ #
