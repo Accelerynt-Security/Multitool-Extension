@@ -34,7 +34,7 @@ Enter a name for the registration and click "Save".
 ![](Images/appreg2.png)
 
 
-Take note of the client and tennant ids, as these are the first two items needed to configure your extension. To obtain the final item, navigate to the "Cetrtificates & secrets" option on the left menu panel.
+Take note of the client and tenant ids, as these are the first two items needed to configure your extension. To obtain the final item, navigate to the "Certificates & secrets" option on the left menu panel.
 
 ![](Images/appreg3.png)
 
