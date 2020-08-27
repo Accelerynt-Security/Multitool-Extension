@@ -39,7 +39,7 @@ Take note of the client and tenant ids, as these are the first two items needed 
 ![](Images/appreg3.png)
 
 
-Click "New secret".
+Click "New client secret".
 
 ![](Images/appreg4.png)
 
