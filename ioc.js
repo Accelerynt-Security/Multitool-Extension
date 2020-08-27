@@ -47,9 +47,9 @@ function validateData()
         document.getElementById("senddata").disabled = true;
     }
     // check for valid data
-    else if("" == getItem("domain") || !getItem("domain").includes(".com")){
-        console.log("Validation failed. Domain must be of the format \'xxxx.com\'.");
-        document.getElementById("warning").innerHTML = "Validation failed. Domain must be of the format \'xxxx.com\'.";
+    else if("" == getItem("domain")){
+        console.log("Validation failed. Domain required.");
+        document.getElementById("warning").innerHTML = "Validation failed. Domain required.";
         
         setItem("validated", "false");
         document.getElementById("senddata").disabled = true;
