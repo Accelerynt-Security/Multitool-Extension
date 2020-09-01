@@ -1,32 +1,61 @@
 <!DOCTYPE html>
 <html>
     <link rel="stylesheet" type="text/css" href="style.css" />
-    <body>
+    <body class="iocbody">
         <p>
             <img class="logo" src="arlogo.png">
             <h2>Sentinel IOC Submission</h2>
         </p>
+        <br/>
         <h3>IOC Information</h3>
-                <label for="domainname">Domain Name:</label>
-                <input type="text" id="domainname">
-                <div class="tooltip">
-                    <img src="100pxBlueQuestion.png" width="12px" height="12px" >
-                    <span class="tooltiptext">Required to submit. Add a domain in the format XXXX.com.</span>
-                </div>
-            
-            <br><br>
-            <label for="description">Description:</label>
-            <input type="text" id="description">
-            <div class="tooltip">
-                <img src="100pxBlueQuestion.png" width="12px" height="12px" >
-                <span class="tooltiptext">Customize the Description field on the TIIndicator.</span>
-            </div>
-            <br><br>
-            <button id="validate">Validate Data</button>
-            <button id="senddata">Submit</button>
+        <div class="tooltip">
+            <img src="100pxBlueQuestion.png" width="12px" height="12px" >
+            <span class="tooltiptext">Required to submit. Add one or more domains in the format XXXX.TLD, one per line.</span>
+        </div>
+        <label class="label" for="domainname">Domain Names</label>
+        <div class="rightc">
+            <br/>
+            <br/>
+            <label class="label" for="confidence">Confidence</label>
+            <br/>
+            <select class="picklist" name="confidence" id="confidence">
+                <option value="0">0</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="75">75</option>
+                <option value="100">100</option>
+            </select>
+            <br/>
+            <br/>
+            <br/>
+            <label class="label" for="tlplevel">TLP Level</label>
+            <br/>
+            <select class="picklist" name="tlplevel" id="tlplevel">
+                <option value="white">white</option>
+                <option value="green">green</option>
+                <option value="amber">amber</option>
+                <option value="red">red</option>
+            </select>
+        </div>
+        <br/>
+                <textarea  id="domainname" rows="10" cols="50"></textarea>
+        <br/>
+        <br/>
+        <br/>
+        <div class="tooltip">
+            <img src="100pxBlueQuestion.png" width="12px" height="12px" >
+            <span class="tooltiptext">Customize a single description for all of the domains.</span>
+        </div>
+        <label class="label" for="description">Description</label>
+        <br/>
+        <textarea id="description" rows="5" cols="50"></textarea>
+        <br/>
+        <br/>
+        <button id="validate">Validate Data</button>
+        <button id="senddata">Submit</button>
         <p id="warning"></p>
         <p id="output"></p>
-        <br><br>
+        <br/>
         <footer>
             <p>Author: Arbala Security</p>
             <p><a href="https://github.com/Arbala-Security/Multitool-Extension/blob/master/README.md"  target="_blank">Arbala Security Mutiltool Documentation</a></p>
