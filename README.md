@@ -55,10 +55,13 @@ Next you will need to grant a permission to this app registration so that your e
 ![](Images/appreg6.png)
 
 
-Click the Microsoft Graph permission.
+Click the "Microsoft Graph" permission.
 
 ![](Images/appreg7.png)
 
+Click "Application permissions".
+
+![](Images/appreg_perms.png)
 
 Scroll down to the "ThreatIndicators" API permission settings and mark the checkbox for "ThreatIndicators.ReadWrite.OwnedBy". Click the "Update permissions" button.
 
