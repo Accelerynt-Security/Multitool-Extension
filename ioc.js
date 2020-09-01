@@ -4,10 +4,18 @@ document.getElementById("validate").addEventListener("click", validateData);
 document.getElementById("senddata").addEventListener("click", sendData);
 document.getElementById("domainname").addEventListener("change", domainChange);
 document.getElementById("description").addEventListener("change", descriptionChange);
+document.getElementById("confidence").addEventListener("change", confidenceChange);
+document.getElementById("tlplevel").addEventListener("change", tlplevelChange);
+
+var multiple = false;
 
 window.onload = function() {
+    setItem("confidence", "50");
+    setItem("tlplevel", "white");
     setElement("domainname", getItem("domain"));
     setElement("description", getItem("description"));
+    setElement("confidence", getItem("confidence"));
+    setElement("tlplevel", getItem("tlplevel"));
     document.getElementById("senddata").disabled = true;
     // check validity of configuration
     if("" == getItem("authtoken")){
@@ -32,6 +40,14 @@ function domainChange(){
 
 function descriptionChange(){
     setItem("description", document.getElementById("description").value);
+}
+
+function confidenceChange(){
+    setItem("confidence", document.getElementById("confidence").value);
+}
+
+function tlplevelChange(){
+    setItem("tlplevel", document.getElementById("tlplevel").value);
 }
 
 function validateData()
@@ -69,29 +85,49 @@ function validateData()
 function buildJSON()
 {
     console.log("Constructing JSON.");
-     // construct IOC expiration date
-     var d = new Date();
-     d.setDate(d.getDate() + 14);
-     var datestring = d.toJSON();
 
-     var description = ("" == getItem("description"))? "IOC submitted from Arbala Security Multitool.": getItem("description");
+    // construct IOC expiration date
+    var d = new Date();
+    d.setDate(d.getDate() + 14);
+    var datestring = d.toJSON();
 
-     // construct IOC JSON body
-     const json = JSON.stringify({
-         "DomainName": getItem("domain"),
-         "action": "alert",
-         "confidence": 0,
-         "description": description,
-         "expirationDateTime": datestring,
-         "severity": 0,
-         "targetProduct": "Azure Sentinel",
-         "threatType": "WatchList",
-         "tlpLevel": "white"
-     });
-     setItem("json", json);
-     document.getElementById("senddata").disabled = false;
-     document.getElementById("output").innerHTML = "Validation succeeded.";
-     document.getElementById("warning").innerHTML = "\n";
+    var description = ("" == getItem("description"))? "IOC submitted from Arbala Security Multitool.": getItem("description");
+
+    var confidence = ("" == getItem("confidence"))? 50: parseInt(getItem("confidence"));
+
+    var tlplevel = ("" == getItem("tlplevel"))? "white": getItem("tlplevel");
+
+    // domain parsing
+    var domains = getItem("domain").split("\n");
+    if(domains.length > 1){
+        multiple = true;
+    }
+    var json = (multiple)? "{\"value\": [" : '';
+    for(let i = 0; i < domains.length;  i++){
+        json += JSON.stringify({
+            "DomainName": domains[i],
+            "action": "alert",
+            "confidence": confidence,
+            "description": description,
+            "expirationDateTime": datestring,
+            "severity": 0,
+            "targetProduct": "Azure Sentinel",
+            "threatType": "WatchList",
+            "tlpLevel": tlplevel
+       });
+       if(i != domains.length - 1)
+       {
+            json += ',';
+       }
+    }
+    if(multiple){
+        json += ']}';
+    }
+    console.log(json);
+    setItem("json", json);
+    document.getElementById("senddata").disabled = false;
+    document.getElementById("output").innerHTML = "Validation succeeded.";
+    document.getElementById("warning").innerHTML = "\n";
 }
 
 function sendData(){
@@ -105,7 +141,7 @@ function sendData(){
     else if("" != getItem("authtoken") && "" != getItem("json")){
        
         const xhr2 = new XMLHttpRequest();
-        var url = "https://graph.microsoft.com/beta/security/tiIndicators";
+        var url = (multiple)? "https://graph.microsoft.com/beta/security/tiIndicators/submitTiIndicators" : "https://graph.microsoft.com/beta/security/tiIndicators";
         // open request
         xhr2.open("POST", url);
 
@@ -122,7 +158,8 @@ function sendData(){
         xhr2.onload = () =>{
             if(xhr2.readyState == 4 && (xhr2.status == 200 || xhr2.status == 201)){
                 console.log("IOC successfully added to Sentinel Workspace.");
-                document.getElementById("output").innerHTML = "IOC successfully added to Sentinel Workspace.";
+                var response = (multiple)? "IOCs submitted from Arbala Security Multitool." : "IOC submitted from Arbala Security Multitool.";
+                document.getElementById("output").innerHTML = response;
                 document.getElementById("warning").innerHTML = "\n";
                 setItem("domain", "");
                 setItem("description", "");
