@@ -2,11 +2,16 @@ body {
     width: 500px;
     border: 5px solid black;
     padding: 20px;
-    margin: 10px;
+    margin: auto;
 }
-ul, li {
-padding:5px;
+
+.iocbody {
+    width: 800px;
+    border: 5px solid black;
+    padding: 20px;
+    margin: auto;
 }
+
 .menubutton{
     padding:5px;
     width: 50%;
@@ -42,8 +47,9 @@ padding:5px;
   color: #fff;
   text-align: center;
   border-radius: 6px;
-  padding: 5px 0;
+  padding: 10px 0;
   position: absolute;
+  left: 50px;
   z-index: 1;
   bottom: 125%;
   left: 50%;
@@ -67,6 +73,20 @@ padding:5px;
   visibility: visible;
   opacity: 1;
 }
+
+.label {
+    font-weight: bold;
+}
+
+.rightc {
+    float:right;
+    margin-right: 50px;
+}
+
+.picklist {
+    width: 200px;
+}
+
 footer{
     font-size: 10px;
     font-weight: bold;
