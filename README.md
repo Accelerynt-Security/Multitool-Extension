@@ -1,4 +1,4 @@
-# Arbala Security Multitool Extension
+# Arbala Security Multi-tool Extension
 
 Author: Arbala Security
 
@@ -8,9 +8,9 @@ Currently, this browser extension allows you to create Microsoft Graph threat in
 
 ## Sentinel IOC Submission
 
-Item 1 is the domain you wish to have (TI) indicator record created for. Enter this in the form '[xxxx].[TLD]'. Currently, functionality only supports submission of one domain at a time.
+Item 1 is the domain you wish to have (TI) indicator record created for. Enter this in the form '[xxxx].[TLD]'. Currently, functionality supports submission of multiple domains.
 
-Item 2 is what will be the value of the Description field on the (TI) indicator record the extension will create for you. This is technically a required field, but should you leave it blank, a value of "IOC submitted from Arbala Security Multitool." will be filled in before the request to create the record is sent.
+Item 2 is what will be the value of the Description field on the (TI) indicator record the extension will create for you. This is technically a required field, but should you leave it blank, a value of "IOC submitted from Arbala Security Multi-tool." will be filled in before the request to create the record is sent.
 
 ![](Images/submitter.png)
 
