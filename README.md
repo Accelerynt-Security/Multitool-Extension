@@ -8,9 +8,13 @@ Currently, this browser extension allows you to create Microsoft Graph threat in
 
 ## Sentinel IOC Submission
 
-Item 1 is the domain you wish to have (TI) indicator record created for. Enter this in the form '[xxxx].[TLD]'. Currently, functionality supports submission of multiple domains.
+Item 1 is the domains you wish to have (TI) indicator records created for. Enter this in the form '[xxxx].[TLD]'. Currently, the submission form is limited to multiple domains. Each line can be a different one you would like to add. We are updating the tool on a weekly basis to incoroprate new features! Hashes and IP will be available soon!
 
 Item 2 is what will be the value of the Description field on the (TI) indicator record the extension will create for you. This is technically a required field, but should you leave it blank, a value of "IOC submitted from Arbala Security Multi-tool." will be filled in before the request to create the record is sent.
+
+Item 3 is *new* this week. This is the confidence score you would like to give the indicators you are submitting. Options are 0, 25, 50, 75, and 100. 
+
+Item 4 is is also *new* this week. This is the TLP level. You can choose from RED, AMBER, GREEN, and WHITE. See the TLP Wiki for more info - https://en.wikipedia.org/wiki/Traffic_Light_Protocol
 
 ![](Images/submitter.png)
 
