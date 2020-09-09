@@ -8,24 +8,21 @@ Currently, this browser extension allows you to create multiple Microsoft Graph 
 
 ## Sentinel IOC Submission
 
-Item 1 is the Indicators of Compromise (IOCs) you wish to have (TI) indicator records created for. 
-We have now added support for submission of domains, IP address, and hashes- all at the same time! 
-IOCs should be separated by space, comma, or a new line. 
-Domains will be parsed out of urls. 
-Currently, we only support hashes of type MD5 or SHA256. 
-Any additional input we are unable to classify will be tossed out.
+Item 1 is the Indicators of Compromise (IOCs) you wish to have (TI) indicator records created for. We have now added support for submission of domains, IP address, and hashes(MD5 and SHA256 only)- all at the same time! IOCs should be separated by space, comma, or a new line.
 
 Item 2 is what will be the value of the Description field on the (TI) indicator record the extension will create for you. 
+
 This is technically a required field, but should you leave it blank, a value of "IOC submitted from Arbala Security Multi-tool." will be filled in before the request to create the record is sent.
 
-Item 3 is the confidence score you would like to give the indicators you are submitting. 
-Options are 0, 25, 50, 75, and 100. 
+Item 3 is the confidence score you would like to give the indicators you are submitting. Options are 0, 25, 50, 75, and 100. 
 
-Item 4 is the TLP level. 
-You can choose from RED, AMBER, GREEN, and WHITE. 
-See the TLP Wiki for more info - https://en.wikipedia.org/wiki/Traffic_Light_Protocol
+Item 4 is the TLP level. You can choose from RED, AMBER, GREEN, and WHITE. See the TLP Wiki for more info - https://en.wikipedia.org/wiki/Traffic_Light_Protocol
 
-![](Images/submitter.png)
+![](Images/extensionrun1.png)
+
+Item 5 is the extract IOCs button. This is what will ready the request to have your rcords created and also what will classify each item as either a domain, ip, or hash.  Domains will be parsed out of urls. Any input which we are unable to classify will be tossed out. Below is the resulting input from the above example. 
+
+![](Images/extensionrun2.png)
 
 ## Configuration
 
