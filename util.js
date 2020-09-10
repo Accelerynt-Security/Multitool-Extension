@@ -45,7 +45,7 @@ function getAuthToken(isConfig){
                     document.getElementById("warning").innerHTML = "\n";
                 }
                 else{
-                    parseIOCs();
+                    classifyIOCs();
                 }
             }
             else{
