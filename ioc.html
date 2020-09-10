@@ -8,11 +8,11 @@
         </p>
         <br/>
         <h3>IOC Information</h3>
-        <div class="tooltip">
+        <div class="info">
             <img src="100pxBlueQuestion.png" width="12px" height="12px" >
-            <span class="tooltiptext">Required to submit. Add one or more domains in the format XXXX.TLD, one per line.</span>
+            <span class="infotext">Required. Put any wall of text containing IOCs here! IPs, filehashes, and domains will be extracted for submission. </span>
         </div>
-        <label class="label" for="domainname">Domain Names</label>
+        <label class="label" for="iocs">IOCs</label>
         <div class="rightc">
             <br/>
             <br/>
@@ -38,20 +38,20 @@
             </select>
         </div>
         <br/>
-                <textarea  id="domainname" rows="10" cols="50"></textarea>
+                <textarea  id="iocs" rows="10" cols="50"></textarea>
         <br/>
         <br/>
         <br/>
-        <div class="tooltip">
+        <div class="info">
             <img src="100pxBlueQuestion.png" width="12px" height="12px" >
-            <span class="tooltiptext">Customize a single description for all of the domains.</span>
+            <span class="infotext">Customize a single description for the IOCs.</span>
         </div>
         <label class="label" for="description">Description</label>
         <br/>
         <textarea id="description" rows="5" cols="50"></textarea>
         <br/>
         <br/>
-        <button id="validate">Validate Data</button>
+        <button id="extract">Extract IOCs</button>
         <button id="senddata">Submit</button>
         <p id="warning"></p>
         <p id="output"></p>
@@ -60,7 +60,7 @@
             <p>Author: Arbala Security</p>
             <p><a href="https://github.com/Arbala-Security/Multitool-Extension/blob/master/README.md"  target="_blank">Arbala Security Multi-tool Documentation</a></p>
             <p><a href="https://github.com/Arbala-Security"  target="_blank">https://github.com/Arbala-Security</a></p>
-            <p>version 0.0.2.1</p>
+            <p>version 0.0.3.0</p>
         </footer>
     </body> 
     <script src="ioc.js"></script>
