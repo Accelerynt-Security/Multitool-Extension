@@ -8,7 +8,7 @@ Currently, this browser extension allows you to create multiple Microsoft Graph 
 
 ## Sentinel IOC Submission
 
-Item 1 is the Indicators of Compromise (IOCs) you wish to have (TI) indicator records created for. We have now added support for submission of domains, IP address, and hashes(MD5 and SHA256 only)- all at the same time! IOCs should be separated by space, comma, or a new line. Due to API limits, only 100 IOCs may be submitted at one time.
+Item 1 is the Indicators of Compromise (IOCs) you wish to have (TI) indicator records created for. We have now added support for submission of domains, IPv4 address, and hashes(MD5 and SHA256 only)- all at the same time! IOCs should be separated by space, comma, or a new line. Due to API limits, only 100 IOCs may be submitted at one time.
 
 Item 2 is what will be the value of the Description field on the (TI) indicator record the extension will create for you. 
 
@@ -20,7 +20,7 @@ Item 4 is the TLP level. You can choose from RED, AMBER, GREEN, and WHITE. See t
 
 ![](Images/extensionrun1.png)
 
-Item 5 is the extract IOCs button. This is what will ready the request to have your rcords created and also what will classify each item as either a domain, ip, or hash.  Domains will be parsed out of urls. Any input which we are unable to classify will be tossed out. Below is the resulting input from the above example. 
+Item 5 is the extract IOCs button. This is what will ready the request to have your records created and also what will classify each item as either a domain, ip, or hash.  Domains will be parsed out of urls. Any input which we are unable to classify will be tossed out. Below is the resulting input from the above example. 
 
 ![](Images/extensionrun2.png)
 
