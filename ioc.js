@@ -311,7 +311,7 @@ function sendData(){
     if(getItem("exp") <= Date.now()){
         document.getElementById("senddata").disabled = true;
         document.getElementById("output").innerHTML = "\n";
-        document.getElementById("warning").innerHTML = "Please extract IOCs again";
+        document.getElementById("warning").innerHTML = "Please extract IOCs again.";
     }
     // proceed with callout
     else if("" != getItem("authtoken") && "" != getItem("json")){
