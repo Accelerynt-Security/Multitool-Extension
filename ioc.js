@@ -107,19 +107,24 @@ function classifyIOCs()
 
     // track values not thrown out during classification
     var acceptedvalues = "";
+    var count = 0;
 
     // map to hold accepted iocs and their classifications
     var iocs = new Map();
 
     // extract and classify ioc data
     for(let i = 0; i < data.length;  i++){
+        // api does not allow more than 100 IOCs submitted at one time
+        if(count == 100){
+            break;
+        }
         var entry = data[i].trim();
         if(entry.length > 2){
 
             // possible filehash
             if(!entry.includes(".")){
                 // check for valid chars letters (a-F A-F & 0-9) and numbers only 
-                var checkchars = entry.split();
+                var checkchars = entry.split('');
                 var isvalid = true;
                 for(let j = 0; j < checkchars.length; j ++){
                     var c = checkchars[j];
@@ -130,6 +135,7 @@ function classifyIOCs()
                 if(isvalid && (entry.length == 32 || entry.length == 64)){
                     console.log("IOC: "+ entry + " classified as a filehash.");
                     acceptedvalues += entry + "\n";
+                    count += 1;
                     iocs.set(entry, "filehash");
                 }   
             }
@@ -152,6 +158,7 @@ function classifyIOCs()
                 if(isvalid){
                     console.log("IOC: "+ entry + " classified as an ip.");
                     acceptedvalues += entry + "\n";
+                    count += 1;
                     iocs.set(entry, "ip");
                 }
             }
@@ -177,10 +184,11 @@ function classifyIOCs()
                         subdomaincount += 1;
                     }
                 }
-                if(subdomaincount > 1)
+                if(subdomaincount > 1 && !entry.match(/[@#%~]/))
                 {
                     console.log("IOC: "+ entry + " classified as a domain.");
                     acceptedvalues += entry + "\n";
+                    count += 1;
                     iocs.set(entry, "domain");
                 }
             }
@@ -189,7 +197,6 @@ function classifyIOCs()
     }
 
     // set field with accepted values
-    setItem("iocs", acceptedvalues);
     setElement("iocs", acceptedvalues);
 
     // return if no data to proceed with
@@ -212,6 +219,8 @@ function classifyIOCs()
     console.log("IOCs successfully extracted from input. Resulting JSON for submission: \n" + getItem("json"));
     document.getElementById("senddata").disabled = false;
     document.getElementById("output").innerHTML = "IOCs successfully extracted from input.";
+    // note if limit was reached extracting IOCs
+    document.getElementById("output").innerHTML = (100 == count)? "Limit reached. Only the first 100 IOCs successfully extracted from input." : "IOCs successfully extracted from input."; 
     document.getElementById("warning").innerHTML = "\n";
 }
 
