@@ -13,9 +13,17 @@
             <span class="infotext">Required. Put any wall of text containing IOCs here! IPs, filehashes, and domains will be extracted for submission. </span>
         </div>
         <label class="label" for="iocs">IOCs</label>
+        <br/>
+                <textarea  id="iocs" rows="10" cols="50"></textarea>
+        <br/>
+        <br/>
+        <br/>
+        <div class="info">
+            <img src="100pxBlueQuestion.png" width="12px" height="12px" >
+            <span class="infotext">Customize a single description for the IOCs.</span>
+        </div>
+        <label class="label" for="description">Description</label>
         <div class="rightc">
-            <br/>
-            <br/>
             <label class="label" for="confidence">Confidence</label>
             <br/>
             <select class="picklist" name="confidence" id="confidence">
@@ -37,16 +45,6 @@
                 <option value="red">red</option>
             </select>
         </div>
-        <br/>
-                <textarea  id="iocs" rows="10" cols="50"></textarea>
-        <br/>
-        <br/>
-        <br/>
-        <div class="info">
-            <img src="100pxBlueQuestion.png" width="12px" height="12px" >
-            <span class="infotext">Customize a single description for the IOCs.</span>
-        </div>
-        <label class="label" for="description">Description</label>
         <br/>
         <textarea id="description" rows="5" cols="50"></textarea>
         <br/>
