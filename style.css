@@ -34,13 +34,13 @@ body {
     color: red;
 
 }
-.tooltip {
+.info {
   position: relative;
   display: inline-block;
   border-bottom: 1px dotted black;
 }
 
-.tooltip .tooltiptext {
+.info .infotext {
   visibility: hidden;
   width: 120px;
   background-color: #555;
@@ -58,7 +58,7 @@ body {
   transition: opacity 0.3s;
 }
 
-.tooltip .tooltiptext::after {
+.info .infotext::after {
   content: "";
   position: absolute;
   top: 100%;
@@ -69,7 +69,7 @@ body {
   border-color: #555 transparent transparent transparent;
 }
 
-.tooltip:hover .tooltiptext {
+.info:hover .infotext {
   visibility: visible;
   opacity: 1;
 }
