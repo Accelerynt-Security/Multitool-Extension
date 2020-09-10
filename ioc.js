@@ -118,7 +118,12 @@ function classifyIOCs()
         if(count == 100){
             break;
         }
+        // remove any trailing whitespace
         var entry = data[i].trim();
+        // remove any trailing periods
+        if(entry.lastIndexOf('.') == entry.length-1){
+            entry = entry.substr(0, entry.length-1);
+        }
         if(entry.length > 2){
 
             // possible filehash
@@ -198,6 +203,7 @@ function classifyIOCs()
 
     // set field with accepted values
     setElement("iocs", acceptedvalues);
+    setItem("iocs", acceptedvalues);
 
     // return if no data to proceed with
     if("" == acceptedvalues)
