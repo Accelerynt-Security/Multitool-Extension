@@ -18,9 +18,11 @@ Item 3 is the confidence score you would like to give the indicators you are sub
 
 Item 4 is the TLP level. You can choose from RED, AMBER, GREEN, and WHITE. See the TLP Wiki for more info - https://en.wikipedia.org/wiki/Traffic_Light_Protocol
 
+Item 5 is the "Extract IOCs" button. This is what will ready the request to have your records created and also what will classify each item as either a domain, ip, or hash.  Domains will be parsed out of urls. Any input which we are unable to classify will be tossed out.
+
 ![](Images/extensionrun1.png)
 
-Item 5 is the extract IOCs button. This is what will ready the request to have your records created and also what will classify each item as either a domain, ip, or hash.  Domains will be parsed out of urls. Any input which we are unable to classify will be tossed out. Below is the resulting input from the above example. 
+After clicking the "Extract IOCs" button, you should see the accepted IOC values neatly formatted in the IOCs input field. At this point, the "Submit" button will be enabled. If all looks well, go ahead and submit them for creation in Microsoft Graph!
 
 ![](Images/extensionrun2.png)
 
