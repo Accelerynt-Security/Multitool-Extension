@@ -4,28 +4,35 @@ document.getElementById("extract").addEventListener("click", extractIOCs);
 document.getElementById("senddata").addEventListener("click", sendData);
 document.getElementById("iocs").addEventListener("change", iocsChange);
 document.getElementById("description").addEventListener("change", descriptionChange);
+document.getElementById("tags").addEventListener("change", tagsChange);
 document.getElementById("confidence").addEventListener("change", confidenceChange);
 document.getElementById("tlplevel").addEventListener("change", tlplevelChange);
-
-// tracks multiple ioc submission
-var multiple = false;
 
 // loading setup
 window.onload = function() {
     console.log("Azure Sentinel IOC Submission. Loading window and setting initial values.");
+    // reset encryption key
+    encryptionReset();
     // set initial values
     setItem("confidence", "50");
     setItem("tlplevel", "white");
     setElement("iocs", getItem("iocs"));
     setElement("description", getItem("description"));
+    setElement("tags", getItem("tags"));
     setElement("confidence", getItem("confidence"));
     setElement("tlplevel", getItem("tlplevel"));
     document.getElementById("senddata").disabled = true;
     // check validity of configuration
-    if("" == getItem("authtoken")){
-        document.getElementById("output").innerHTML = "\n";
-        document.getElementById("warning").innerHTML = "Please check configuration before proceeding.";
-        document.getElementById("extract").disabled = true;
+    if("" == getItem("authtoken") || "" ==  getItem("tenantid") || "" == getItem("clientid") || "" == getItem("secret")){
+        // attempt to reobtain auth token if credentials are saved
+        if("" == getItem("authtoken") && "" !=  getItem("tenantid") && "" != getItem("clientid") && "" != getItem("secret")){
+            getAuthToken("load");
+        }
+        else {
+            document.getElementById("output").innerHTML = "\n";
+            document.getElementById("warning").innerHTML = "Please check configuration before proceeding.";
+            document.getElementById("extract").disabled = true;
+        }
     }
     else{
         document.getElementById("output").innerHTML = "\n";
@@ -36,10 +43,21 @@ window.onload = function() {
 
 // reset json body and disable submit button; re-sanitization needed to form new json for request
 function handleFieldChange(){
-    setItem("json", "");
+    resetJson();
     document.getElementById("senddata").disabled = true;
     document.getElementById("output").innerHTML = "\n";
     document.getElementById("warning").innerHTML = "\n";
+}
+
+// reset all json batches
+function resetJson(){
+    if(!isNaN(getItem("batches"))){
+        for(let i = 1; i <= getItem("batches"); i++){
+            var batchnumber = "batch" + i;
+            setItem(batchnumber, "");
+        }
+    }
+    setItem("batches", 1);
 }
 
 // tracks changes to ioc field
@@ -51,6 +69,12 @@ function iocsChange(){
 // tracks changes to description field
 function descriptionChange(){
     setItem("description", document.getElementById("description").value);
+    handleFieldChange();
+}
+
+// tracks changes to tags field
+function tagsChange(){
+    setItem("tags", document.getElementById("tags").value);
     handleFieldChange();
 }
 
@@ -89,7 +113,7 @@ function extractIOCs()
         if(getItem("exp") <= Date.now()){
             console.log("Authorization token has expired. Requesting a new one before proceeding.");
             // getAuthToken will call classifyIOCs() if/when a valid token is obtained
-            getAuthToken(false);
+            getAuthToken("extract");
         }
         else{
             classifyIOCs();
@@ -105,8 +129,13 @@ function classifyIOCs()
     // initial data parsing
     var data = getItem("iocs").split(/[ ,\n]+/);
 
-    // track values not thrown out during classification
+    // track total valid entries in all batches for output display 
     var acceptedvalues = "";
+    // track valid entries in the current batch
+    var batchvalues = "";
+    // track the number of batches 
+    var batchcount = 1;
+    // track the number of items in a batch
     var count = 0;
 
     // map to hold accepted iocs and their classifications
@@ -116,7 +145,18 @@ function classifyIOCs()
     for(let i = 0; i < data.length;  i++){
         // api does not allow more than 100 IOCs submitted at one time
         if(count == 100){
-            break;
+            // if batch size is reached, build json batch and reset counts
+            batchvalues = batchvalues.substr(0, batchvalues.lastIndexOf("\n"));
+            // append batch to total for output
+            acceptedvalues += batchvalues + "\n";
+            // build json batch
+            buildJSON(batchvalues, iocs, batchcount);
+            // set up for next batch
+            iocs.clear();
+            batchvalues = "";
+            batchcount += 1;
+            count = 0;
+
         }
         // remove any trailing whitespace
         var entry = data[i].trim();
@@ -125,7 +165,7 @@ function classifyIOCs()
             entry = entry.substr(0, entry.length-1);
         }
         if(entry.length > 2){
-
+            
             // possible filehash
             if(!entry.includes(".")){
                 // check for valid chars letters (a-F A-F & 0-9) and numbers only 
@@ -137,9 +177,9 @@ function classifyIOCs()
                         isvalid = false;
                     }
                 }
-                if(isvalid && (entry.length == 32 || entry.length == 64)){
+                if(isvalid && !iocs.has(entry) && (entry.length == 32 || entry.length == 64)){
                     console.log("IOC: "+ entry + " classified as a filehash.");
-                    acceptedvalues += entry + "\n";
+                    batchvalues += entry + "\n";
                     count += 1;
                     iocs.set(entry, "filehash");
                 }   
@@ -160,9 +200,9 @@ function classifyIOCs()
                         isvalid = false;
                     }
                 }
-                if(isvalid){
+                if(isvalid && !iocs.has(entry)){
                     console.log("IOC: "+ entry + " classified as an ip.");
-                    acceptedvalues += entry + "\n";
+                    batchvalues += entry + "\n";
                     count += 1;
                     iocs.set(entry, "ip");
                 }
@@ -170,16 +210,23 @@ function classifyIOCs()
 
             // possible domain
             else if(!entry.includes("..") && entry.split(".").length >= 2) {
-                //  !entry.includes("http://") && !entry.includes("https://")
-                // domain parsing
+                // remove special characters
+                entry = entry.replace(/[\[\]]/g, "");
+                // remove protocol
                 if(entry.indexOf("://") != -1){
                     entry = entry.substr(entry.indexOf("://")+3, entry.length-1);
                 }
+                // remove subdomain
                 if(entry.indexOf("www.") != -1){
                     entry = entry.substr(entry.indexOf("www.")+4, entry.length-1);
                 }
+                // remoce filepath
                 if(entry.indexOf("/") != -1){
                     entry = entry.substr(0, entry.indexOf("/"));
+                }
+                // remove port number
+                if(entry.indexOf(":") != -1){
+                    entry = entry.substr(0, entry.indexOf(":"));
                 }
                 // check for valid domain
                 var domaincheck = entry.split(".");
@@ -189,10 +236,10 @@ function classifyIOCs()
                         subdomaincount += 1;
                     }
                 }
-                if(subdomaincount > 1 && !entry.match(/[@#%~]/))
+                if(subdomaincount > 1 && !iocs.has(entry) && !entry.match(/[@#%~]/))
                 {
                     console.log("IOC: "+ entry + " classified as a domain.");
-                    acceptedvalues += entry + "\n";
+                    batchvalues += entry + "\n";
                     count += 1;
                     iocs.set(entry, "domain");
                 }
@@ -201,37 +248,58 @@ function classifyIOCs()
         }    
     }
 
-    // set field with accepted values
-    setElement("iocs", acceptedvalues);
-    setItem("iocs", acceptedvalues);
-
     // return if no data to proceed with
-    if("" == acceptedvalues)
+    if("" == batchvalues && 1 == batchcount)
     {
         console.log("No valid ioc enteries found.");
         document.getElementById("warning").innerHTML = "Failure extracting IOCs. No valid enteries were found.";
         document.getElementById("senddata").disabled = true;
         return;
     }
-    //otherwise remove last \n character from accepted values
-    else{
-        acceptedvalues = acceptedvalues.substr(0, acceptedvalues.lastIndexOf("\n"));
+    // decrement batch count if last batch is empty
+    else if("" == batchvalues && 1 != batchcount){
+        batchcount -= 1;
+    }
+    // handle last batch if it contains data
+    else if("" != batchvalues){
+        batchvalues = batchvalues.substr(0, batchvalues.lastIndexOf("\n"));
+        acceptedvalues += batchvalues;
+        // construct json batch body with iocs
+        buildJSON(batchvalues, iocs, batchcount);
     }
 
-    // construct json body with iocs
-    buildJSON(acceptedvalues, iocs);
+    setItem("batches", batchcount);
+
+    // set field with accepted values
+    setElement("iocs", acceptedvalues);
+    setItem("iocs", acceptedvalues);
 
     // validation succeeded, enable submission
-    console.log("IOCs successfully extracted from input. Resulting JSON for submission: \n" + getItem("json"));
+    console.log("IOCs successfully extracted from input.");
     document.getElementById("senddata").disabled = false;
     document.getElementById("output").innerHTML = "IOCs successfully extracted from input.";
-    // note if limit was reached extracting IOCs
-    document.getElementById("output").innerHTML = (100 == count)? "Limit reached. Only the first 100 IOCs successfully extracted from input." : "IOCs successfully extracted from input."; 
     document.getElementById("warning").innerHTML = "\n";
 }
 
+// returns a json list of tags and reformats values displayed on form
+function getTags(){
+    var data = getItem("tags").split(/[ ,\n]+/);
+    var tags = new Array();
+    var output = "";
+    for(let i = 0; i < data.length;  i++){
+        tags.push(data[i].trim());
+        output += data[i].trim();
+        if(i != data.length-1){
+            output += "\n";
+        }
+    }
+    setElement("tags", output);
+    setItem("tags", output);
+    return tags;
+}
+
 // construct the json object for submission
-function buildJSON(acceptedvalues, iocs){
+function buildJSON(batchvalues, iocs, batchnumber){
     // construct IOC expiration date
     var d = new Date();
     d.setDate(d.getDate() + 14);
@@ -243,19 +311,22 @@ function buildJSON(acceptedvalues, iocs){
 
     var tlplevel = ("" == getItem("tlplevel"))? "white": getItem("tlplevel");
 
+    var tags = getTags();
+
     // check if multiple IOCs will be submitted
     if(iocs.size > 1){
-        multiple = true;
+        setItem("multiple" + batchnumber, true);
     }
     else{
-        multiple = false;
+        setItem("multiple" + batchnumber, false);
     }
 
+    console.log("Total batches to be sent: " + getItem("batches"));
     // get keys for valid iocs
-    var keys = acceptedvalues.split("\n");
+    var keys = batchvalues.split("\n");
 
     // construct JSON body for API request
-    var json = (multiple)? "{\"value\": [" : "";
+    var json = (getItem("multiple" + batchnumber))? "{\"value\": [" : "";
 
     // construct a json object for each ioc to add to the body
     for(let i = 0; i < keys.length; i++){
@@ -295,7 +366,8 @@ function buildJSON(acceptedvalues, iocs){
                 "severity": 0,
                 "targetProduct": "Azure Sentinel",
                 "threatType": "WatchList",
-                "tlpLevel": tlplevel
+                "tlpLevel": tlplevel,
+                "tags": tags
             });
             if(i != keys.length - 1){
                 obj += ',';
@@ -304,10 +376,68 @@ function buildJSON(acceptedvalues, iocs){
 
         }
     }
-    if(multiple){
+    if(getItem("multiple" + batchnumber)){
         json += ']}';
     }
-    setItem("json", json);
+    setItem("batch" + batchnumber, json);
+    console.log("Batch Number: " + batchnumber + "\nJSON Request Body:\n" + json);
+}
+
+// send the api callout
+function doCallout(batchnumber, batches){
+    var batch = "batch" + batchnumber;
+    const xhr = new XMLHttpRequest();
+    var url = (getItem("multiple" + batchnumber))? "https://graph.microsoft.com/beta/security/tiIndicators/submitTiIndicators" : "https://graph.microsoft.com/beta/security/tiIndicators";
+    // open request
+    xhr.open("POST", url);
+
+    // set headers
+    xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    xhr.setRequestHeader("Authorization", "Bearer "+ getItem("authtoken"));
+
+    // send rquest with JSON payload
+    xhr.send(getItem(batch));
+    // reset input fields on final batch
+    if(batches == batchnumber){
+        setItem("iocs", "");
+        setItem("description", "");
+        setItem("tags", "");
+        setItem("confidence", "50");
+        setItem("tlplevel", "white");
+        setElement("iocs", getItem("iocs"));
+        setElement("description", getItem("description"));
+        setElement("tags", getItem("tags"));
+        setElement("confidence", getItem("confidence"));
+        setElement("tlplevel", getItem("tlplevel"));
+        handleFieldChange();
+        encryptionReset();
+    }
+
+    // handle response
+    xhr.onload = () =>{
+        // handle success
+        if(xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 201)){
+            console.log("Batch number " + batchnumber + " out of  "+ batches + " --Success! ");
+        }
+        // handle failure/partial success
+        else{
+            console.log("Batch number " + batchnumber + " out of  "+ batches + " -- Partial failure. \nStatus: "+ xhr.status +" \nStatus text: "+ xhr.statusText + "\body: " + xhr.response);
+            setItem("failedBatches", getItem("failedBatches") + 1);
+        }
+        // run complete, post output
+        if(batches == batchnumber){
+            if(0 ==  getItem("failedBatches")){
+                document.getElementById("output").innerHTML = "IOC(s) successfully submitted from Arbala Security Multitool." ;
+                document.getElementById("warning").innerHTML = "\n";
+            }
+            else{
+                document.getElementById("output").innerHTML = "\n";
+                document.getElementById("warning").innerHTML = "One or more of the submitted IOCs was not accepted. Please check console logs for details."; 
+            }
+        }
+        
+    
+    };
 }
 
 // send the api request
@@ -320,49 +450,13 @@ function sendData(){
         document.getElementById("warning").innerHTML = "Please extract IOCs again.";
     }
     // proceed with callout
-    else if("" != getItem("authtoken") && "" != getItem("json")){
-       
-        const xhr2 = new XMLHttpRequest();
-        var url = (multiple)? "https://graph.microsoft.com/beta/security/tiIndicators/submitTiIndicators" : "https://graph.microsoft.com/beta/security/tiIndicators";
-        // open request
-        xhr2.open("POST", url);
-
-        // set headers
-        xhr2.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr2.setRequestHeader("Authorization", "Bearer "+ getItem("authtoken"));
-
-        // send rquest with JSON payload
-        xhr2.send(getItem("json"));
-        console.log("Auth token: "+ getItem("authtoken") + "\nJSON Body: "+ getItem("json"));
-        iocsChange();
-
-        // handle response
-        xhr2.onload = () =>{
-            // handle success
-            if(xhr2.readyState == 4 && (xhr2.status == 200 || xhr2.status == 201)){
-                console.log("IOC successfully added to Sentinel Workspace.");
-                var response = (multiple)? "IOCs submitted from Arbala Security Multitool." : "IOC submitted from Arbala Security Multitool.";
-                document.getElementById("output").innerHTML = response;
-                document.getElementById("warning").innerHTML = "\n";
-                setItem("iocs", "");
-                setItem("description", "");
-                setElement("iocs", getItem("iocs"));
-                setElement("description", getItem("description"));
-            }
-            // handle failure/partial success on multiple ioc submission
-            else if(xhr2.readyState == 4 && xhr2.status == 206){
-                console.log("Partial failure. \nStatus: "+ xhr2.status +" \nStatus text: "+ xhr2.statusText + "\body: " + xhr2.response);
-                document.getElementById("output").innerHTML = "\n";
-                document.getElementById("warning").innerHTML = "One or more of the submitted IOC requests was not accepted. Please check console logs for details.";
-            }
-            // handle failure
-            else{
-                console.log("Failure. \nStatus: "+ xhr2.status +" \nStatus text: "+ xhr2.statusText + "\body: " + xhr2.response);
-                document.getElementById("output").innerHTML = "\n";
-                document.getElementById("warning").innerHTML = "Request failed. Please check console logs for details.";
-            }   
-        
-        };
+    else if("" != getItem("authtoken") && "" != getItem("batch" + 1) && !isNaN(getItem("batches"))){
+        var batches = getItem("batches");
+        setItem("failedBatches", 0);
+       for(let i = 1; i <= batches; i++)
+       {
+           doCallout(i, batches);
+       }
     }
     // handle edge case of missing values
     else{
