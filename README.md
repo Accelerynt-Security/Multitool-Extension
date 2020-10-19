@@ -18,7 +18,9 @@ Item 3 is the confidence score you would like to give the indicators you are sub
 
 Item 4 is the TLP level. You can choose from RED, AMBER, GREEN, and WHITE. See the TLP Wiki for more info - https://en.wikipedia.org/wiki/Traffic_Light_Protocol
 
-Item 5 is the "Extract IOCs" button. This is what will ready the request to have your records created and also what will classify each item as either a domain, ip, or hash.  Domains will be parsed out of urls. Any input which we are unable to classify will be tossed out.
+Item 5 is the tags you would like to add to your IOCs. These will be separated by commas and/or whitespace.
+
+Item 6 is the "Extract IOCs" button. This is what will ready the request to have your records created and also what will classify each item as either a domain, ip, or hash.  Domains will be parsed out of urls. Any input which we are unable to classify will be tossed out.
 
 ![](Images/extensionrun1.png)
 
