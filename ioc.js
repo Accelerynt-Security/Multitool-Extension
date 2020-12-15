@@ -127,7 +127,7 @@ function classifyIOCs()
     console.log("Extracting IOCs. Classifying and validating iocs.");
 
     // initial data parsing
-    var data = getItem("iocs").split(/[ ,\n]+/);
+    var data = getItem("iocs").split(/[ ,\n\t]+/);
 
     // track total valid entries in all batches for output display 
     var acceptedvalues = "";
@@ -212,6 +212,8 @@ function classifyIOCs()
             else if(!entry.includes("..") && entry.split(".").length >= 2) {
                 // remove special characters
                 entry = entry.replace(/[\[\]]/g, "");
+                // remove special strings
+                entry = entry.replace(/CN=/g, "");
                 // remove protocol
                 if(entry.indexOf("://") != -1){
                     entry = entry.substr(entry.indexOf("://")+3, entry.length-1);
